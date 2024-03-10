@@ -7,7 +7,7 @@ NoteIdx CurrentNote(float frequency)
     auto note_idx = idx % 12;
     note_idx = note_idx < 0 ? 12 + note_idx : note_idx;
     auto oct_idx = static_cast<float>(idx) / 12;
-    oct_idx = oct_idx < 0 ? std::floor(oct_idx) : std::ceil(oct_idx);
+    oct_idx = oct_idx < 1 ? std::floor(oct_idx) : std::ceil(oct_idx);
     auto octave = 4 + (oct_idx);
     return NoteIdx{
         .note = static_cast<Note>(note_idx),
@@ -69,14 +69,17 @@ float GetFrequency(NoteIdx note)
 NoteLimit GetNoteLimits(NoteIdx note)
 {
     auto freq = GetFrequency(note);
-    auto factor = std::pow(2.0, 0.5 / 12.0);
+    // auto factor = std::pow(2.0, 0.5 / 12.0) - 1;
+    constexpr double factor = 0.0293022366434921 * 0.5;
     auto delta_semi = std::log2(std::abs(note.freq / freq)) * 12.0;
-    auto interpolated_val = std::pow(2.0, std::abs(delta_semi) / 12);
+    auto interpolated_val = std::pow(2.0, std::abs(delta_semi) / 12) - 1;
+    auto delta = note.freq - freq;
     auto actual = interpolated_val / factor;
-    if (delta_semi < 0)
+    if (delta < 0)
     {
-        actual = 1 - actual;
+        actual = 0.5 - (actual - 0.5);
     }
+
     auto lower = freq / factor;
     auto higher = freq * factor;
     return NoteLimit{

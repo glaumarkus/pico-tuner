@@ -110,9 +110,12 @@ void SetPixel(int x, int y)
         return;
     const int BytesPerRow = SSD1306_WIDTH;
     int byte_idx = (y / 8) * BytesPerRow + x;
-    uint8_t byte = 0;
-    byte |= 1 << (y % 8);
+    uint8_t byte = sDisplayBuffer[byte_idx];
+    uint8_t shift = 1 << (y % 8);
+    byte |= shift;
     sDisplayBuffer[byte_idx] = byte;
+    // Render();
+    // sleep_ms(50);
 }
 
 void Clear()
@@ -133,22 +136,23 @@ void AddTunerOutline()
         SetPixel(i, 16);
     }
     // left outer
-    for (int i = 0; i < 32; i++)
+    for (int i = 8; i < 24; i++)
     {
         SetPixel(0, i);
     }
+
     // right outer
-    for (int i = 0; i < 32; i++)
+    for (int i = 8; i < 24; i++)
     {
         SetPixel(100, i);
     }
     // left inner
-    for (int i = 0; i < 32; i++)
+    for (int i = 12; i < 20; i++)
     {
         SetPixel(40, i);
     }
     // right inner
-    for (int i = 0; i < 32; i++)
+    for (int i = 12; i < 20; i++)
     {
         SetPixel(60, i);
     }
@@ -168,93 +172,102 @@ void AddTunerLocator(float f)
 void AddLabel(Note note)
 {
     auto letter_bitmap = LetterBitmapFromNote(note);
-    ProcessBitmap(letter_bitmap, 100);
-    auto hash_bitmap = HashBitmapFromNote(note);
-    ProcessBitmap(hash_bitmap, 115);
+    ProcessBitmap(letter_bitmap, 103);
+    switch (note)
+    {
+    case Note::A_sharp:
+    case Note::C_sharp:
+    case Note::D_sharp:
+    case Note::F_sharp:
+    case Note::G_sharp:
+    {
+        std::memcpy(letter_bitmap.data, letter_hash, kLetterSize);
+        ProcessBitmap(letter_bitmap, 115);
+        break;
+    }
+    default:
+        break;
+    }
 }
 
-inline int getBit(uint8_t byte, int idx)
+int getBit(uint8_t byte, int idx)
 {
     return (byte >> idx) & 1;
 }
 
-inline int getBit(const uint8_t *bytes, int idx)
+int getBit(const uint8_t *bytes, int idx)
 {
     int array_fist_idx = idx / 8;
     int array_second_idx = idx % 8;
-    return getBit(bytes[array_fist_idx], array_second_idx);
+    return getBit(bytes[array_second_idx], array_fist_idx);
 }
 
-void ProcessBitmap(const uint8_t *bitmap, int start_pos)
+void ProcessBitmap(const letter_data &ld, int start_pos)
 {
-    if (bitmap == nullptr)
-        return;
     int bitmap_counter = 0;
     for (int x = 0; x < kLetterHeight; x++)
     {
         for (int y = 0; y < kLetterWidth; y++)
         {
-            auto color = getBit(bitmap, bitmap_counter++);
-            if (color)
+            auto idx = 0;
+            uint8_t color = ld.data[x][y];
+            if (color != 0U)
             {
-                SetPixel(x + start_pos, y);
+                SetPixel(y + start_pos, x);
             }
         }
     }
 }
 
-const uint8_t *LetterBitmapFromNote(Note note)
+letter_data LetterBitmapFromNote(Note note)
 {
-    const uint8_t *result = nullptr;
+    letter_data ld;
+
     switch (note)
     {
     case Note::A:
     case Note::A_sharp:
-        result = letter_a;
+        std::memcpy(ld.data, letter_a, kLetterSize);
         break;
     case Note::B:
-        result = letter_b;
+        std::memcpy(ld.data, letter_b, kLetterSize);
         break;
     case Note::C:
     case Note::C_sharp:
-        result = letter_c;
+        std::memcpy(ld.data, letter_c, kLetterSize);
         break;
     case Note::D:
     case Note::D_sharp:
-        result = letter_d;
+        std::memcpy(ld.data, letter_d, kLetterSize);
         break;
     case Note::E:
-        result = letter_e;
+        std::memcpy(ld.data, letter_e, kLetterSize);
         break;
     case Note::F:
     case Note::F_sharp:
-        result = letter_f;
+        std::memcpy(ld.data, letter_f, kLetterSize);
         break;
     case Note::G:
     case Note::G_sharp:
-        result = letter_g;
+        std::memcpy(ld.data, letter_g, kLetterSize);
         break;
     default:
         break;
     }
-    return result;
+    return ld;
 }
 
-const uint8_t *HashBitmapFromNote(Note note)
+void setup_display()
 {
-    const uint8_t *result = nullptr;
-    switch (note)
-    {
-
-    case Note::A_sharp:
-    case Note::C_sharp:
-    case Note::D_sharp:
-    case Note::F_sharp:
-    case Note::G_sharp:
-        result = letter_hash;
-        break;
-    default:
-        break;
-    }
-    return result;
+#ifdef PICO
+    i2c_init(i2c_default, SSD1306_I2C_CLK * 1000);
+    gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(PICO_DEFAULT_I2C_SDA_PIN);
+    gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
+#endif
+    // init
+    SSD1306_init();
+    Clear();
+    Render();
 }

@@ -4,7 +4,7 @@ from string import Template
 
 letter_template = Template(
 """
-constexpr uint8_t letter_$letter[52] =
+constexpr uint8_t letter_$letter[32][13] =
 {
     $data
 };
@@ -19,7 +19,8 @@ def image_to_array(image_path):
         row = []
         for x in range(img.width):
             pixel = img.getpixel((x, y))
-            binary_array.append(1 if pixel[3] == 255 else 0)
+            row.append(1 if pixel[3] == 255 else 0)
+        binary_array.append(row)
     return binary_array
 
 files = os.listdir("bitmaps")
@@ -28,6 +29,8 @@ for file in files:
     if file.endswith(".png"):
         data = image_to_array("bitmaps/" + file)
         
+        
+
         # chunks of 8
         data = [str(i) for i in data]
         data = [data[i:i+8] for i in range(0, len(data), 8)]

@@ -75,9 +75,15 @@ void Fill();
 void AddTunerOutline();
 void AddTunerLocator(float f);
 void AddLabel(Note note);
-const uint8_t *LetterBitmapFromNote(Note note);
-const uint8_t *HashBitmapFromNote(Note note);
-void ProcessBitmap(const uint8_t* bitmap,  int start_pos);
+struct letter_data
+{
+    uint8_t data[32][13];
+};
+letter_data LetterBitmapFromNote(Note note);
+void ProcessBitmap(const letter_data &ld, int start_pos);
+int getBit(uint8_t byte, int idx);
+int getBit(const uint8_t *bytes, int idx);
+void setup_display();
 
 #ifndef PICO
 #endif

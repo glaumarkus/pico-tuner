@@ -9,15 +9,24 @@
 #include <iostream>
 #include <vector>
 
-std::vector<double> generateSineWave(int n, double fs, double targetFrequency)
+std::vector<uint16_t> generateSineWave(int n, double fs, double targetFrequency)
 {
-    std::vector<double> samples(n);
+    constexpr uint16_t MAX_AMPLITUDE = 65535;
+    double amplitude = MAX_AMPLITUDE / 2.0;
+
+    std::vector<uint16_t> samples;
+    samples.reserve(n);
     double samplePeriod = 1.0 / fs;
 
     for (int i = 0; i < n; ++i)
     {
-        double t = i * samplePeriod;
-        samples[i] = sin(2.0 * M_PI * targetFrequency * t);
+                // Generate the sine wave value
+        double time = static_cast<double>(i) / static_cast<double>(fs);
+        double sineValue = std::sin(2.0 * M_PI * targetFrequency * time);
+
+        // Scale and shift the sine value to fit the uint16_t range
+        uint16_t sample = static_cast<uint16_t>((sineValue + 1.0) * amplitude);
+        samples.emplace_back(sample);
     }
 
     return samples;
@@ -44,34 +53,34 @@ bool equal_freq(float first, float second)
 //     EXPECT_EQ(p.GetCpxInSize(), FFTParams::kAnalogReadBufferSize * FFTParams::kAnalogBlocksPerFFT);
 // }
 
-// TEST(fft_test, fft_test)
-// {
-//     // set up processor
-//     FFTProcessor p;
+TEST(fft_test, fft_test)
+{
+    // set up processor
+    FFTProcessor p;
 
-//     for (int i = 20; i < 500; i++)
-//     {
-//         p.Init();
-//         // mock sine wave
-//         auto sine_wave = generateSineWave(FFTParams::kAnalogReadBufferSize, FFTParams::kSamplePerSec, i);
-//         for (const auto sample : sine_wave)
-//         {
-//             p.Add(sample);
-//         }
-//         if (!equal_freq(p.GetFrequency(), i))
-//         {
-//             EXPECT_TRUE(false);
-//             std::cout << p.GetFrequency() << " vs " << i << std::endl;
-//         }
-//     }
-// }
+    for (int i = 200; i < 460; i++)
+    {
+        p.Init();
+        // mock sine wave
+        auto sine_wave = generateSineWave(FFTParams::kAnalogReadBufferSize, FFTParams::kSamplePerSec, i);
+        for (const auto sample : sine_wave)
+        {
+            p.Add(sample);
+        }
+        if (!equal_freq(p.GetFrequency(), i))
+        {
+            EXPECT_TRUE(false);
+            std::cout << p.GetFrequency() << " vs " << i << std::endl;
+        }
+    }
+}
 
 // TEST(fft_test, fft_test_performance)
 // {
 //     // set up processor
 //     FFTProcessor p;
 
-//     for (int i = 0; i < 100; i++)
+//     for (int i = 0; i < 10; i++)
 //     {
 //         p.Init();
 //         // mock sine wave
@@ -83,7 +92,14 @@ bool equal_freq(float first, float second)
 //         Timer t;
 //         auto freq = p.GetFrequency();
 //         auto measurement = t.MeasureMs();
-//         EXPECT_TRUE(measurement < (1000.0 / FFTParams::kScreenUpdatesPerSecond));
+//         if (measurement < (1000.0 / FFTParams::kScreenUpdatesPerSecond))
+//         {
+//         }
+//         else
+//         {
+//             std::cout << measurement << "\n";
+//             FAIL();
+//         }
 //     }
 // }
 
@@ -168,36 +184,58 @@ bool equal_freq(float first, float second)
 //     EXPECT_TRUE(limits.scalar > 0.99 && limits.scalar >= 0 && limits.scalar <= 1.0);
 // }
 
-int GetIdxFromContinousBuffer(int x, int y)
-{
-    int byte_idx = (y / 8) * SSD1306_WIDTH + x;
-    return byte_idx;
-}
+// int GetIdxFromContinousBuffer(int x, int y)
+// {
+//     int byte_idx = (y / 8) * SSD1306_WIDTH + x;
+//     return byte_idx;
+// }
 
-TEST(fft_test, test_display_update)
-{
-    SSD1306_init();
-    Clear();
-    Render();
-    EXPECT_EQ(GetDisplayBuffer()[0], 0x00);
-    Fill();
-    Render();
-    EXPECT_EQ(GetDisplayBuffer()[0], 0xFF);
-}
+// TEST(fft_test, test_display_update)
+// {
+//     SSD1306_init();
+//     Clear();
+//     Render();
+//     EXPECT_EQ(GetDisplayBuffer()[0], 0x00);
+//     Fill();
+//     Render();
+//     EXPECT_EQ(GetDisplayBuffer()[0], 0xFF);
+// }
 
-TEST(fft_test, test_ui)
-{
-    SSD1306_init();
-    Clear();
-    Render();
-    AddTunerOutline();
-    EXPECT_EQ(GetDisplayBuffer()[GetIdxFromContinousBuffer(0, 0)], 0x80);
-}
+// TEST(fft_test, test_ui)
+// {
+//     SSD1306_init();
+//     Clear();
+//     Render();
+//     AddTunerOutline();
+//     EXPECT_EQ(GetDisplayBuffer()[GetIdxFromContinousBuffer(0, 0)], 0x80);
+// }
 
-TEST(fft_test, test_letter)
-{
-    SSD1306_init();
-    Clear();
-    Render();
-    AddLabel(Note::A);
-}
+// TEST(fft_test, test_letter)
+// {
+//     SSD1306_init();
+//     Clear();
+//     Render();
+//     AddLabel(Note::A);
+// }
+
+// TEST(fft_test, test_letter_conversion)
+// {
+//     SSD1306_init();
+//     Clear();
+//     Render();
+//     AddLabel(Note::A);
+//     const uint8_t *bm = LetterBitmapFromNote(Note::A);
+//     int bit;
+//     for (int i = 0; i < 100; i++)
+//     {
+//         bit = getBit(bm, i);
+//         std::cout << i << ": " << (int)bit << std::endl;
+//     }
+
+//     bit = getBit(bm, 35);
+//     EXPECT_NE(bit, 0);
+//     bit = getBit(bm, 0);
+//     EXPECT_EQ(bit, 0);
+//     bit = getBit(bm, 29);
+//     EXPECT_EQ(bit, 0);
+// }

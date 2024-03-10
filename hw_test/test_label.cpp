@@ -1,5 +1,6 @@
 #include "pico/stdlib.h"
 #include "display.h"
+#include "hardware/i2c.h"
 
 int main()
 {
@@ -11,50 +12,48 @@ int main()
     gpio_pull_up(PICO_DEFAULT_I2C_SDA_PIN);
     gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
 
+    // init
+    SSD1306_init();
+    Clear();
+    Render();
+
+    auto render_basic_stuff = []()
+    {
+        Render();
+        sleep_ms(500);
+        Clear();
+        AddTunerOutline();
+        AddTunerLocator(0.1);
+    };
+
     while (true)
     {
-        // init
-        SSD1306_init();
-        Clear();
-        Render();
 
         // render all letters
         AddLabel(Note::A);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::A_sharp);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::B);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::C);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::C_sharp);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::D);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::D_sharp);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::E);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::F);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::F_sharp);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::G);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
         AddLabel(Note::G_sharp);
-        Render();
-        sleep_ms(500);
+        render_basic_stuff();
     }
 
     return 0;

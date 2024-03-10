@@ -5,6 +5,7 @@ GTEST_RELEASE="https://github.com/google/googletest/archive/refs/tags/release-1.
 FFTW_RELEASE="http://fftw.org/fftw-3.3.10.tar.gz"
 KISSFFT_RELEASE="https://github.com/mborgerding/kissfft/archive/refs/tags/131.1.0.tar.gz"
 
+sudo apt-get install libpng-dev -y
 
 echo "Starting install"
 
