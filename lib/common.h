@@ -2,7 +2,14 @@
 
 #include <cstdint>
 
-#define FFT_SCALAR int16_t
+#define FFT_SCALAR float
+// #define FFT_SCALAR int16_t
+// #define FIXED_POINT 16
+// #include <kiss_fft.h>
+#include <kiss_fftr.h>
+
+
+
 
 #ifdef PICO
 #define ENABLE_LOGGING
@@ -29,20 +36,27 @@ namespace FFTParams
     constexpr int kRecordTaskus = 1000000 / kSamplePerSec;
     constexpr int kScreenUpdatesPerSecond = 10;
     constexpr int kScreenUpdateEveryUs = 1000000 / kScreenUpdatesPerSecond;
-    constexpr int kAnalogBlocksPerFFT = 4;
+    constexpr int kAnalogBlocksPerFFT = 2;
     constexpr int kAnalogReadBufferSize = static_cast<double>(kSamplePerSec) / kScreenUpdatesPerSecond;
     constexpr int kFFTCounter = kAnalogBlocksPerFFT * kAnalogReadBufferSize;
     constexpr int kMemcpyHelper = kFFTCounter - kAnalogReadBufferSize;
     // 9 zero pads to increase accuracy to around 0.1
-    constexpr int kNumZeroPads = 9;
+    constexpr int kNumZeroPads = 4;
     constexpr int kFFTBufferSize = kSamplePerSec + kNumZeroPads * kSamplePerSec;
     constexpr double kFFTResolution = static_cast<double>(kSamplePerSec) / static_cast<double>(kFFTBufferSize);
 
-    constexpr double kAreaOfInterestBegin = 20.0;
-    constexpr double kAreaOfInterestEnd = 500.0;
+    constexpr double kAreaOfInterestBegin = 40.0;
+    constexpr double kAreaOfInterestEnd = 350.0;
     constexpr int kAreaOfInterestBeginIdx = kAreaOfInterestBegin / kFFTResolution;
     constexpr int kAreaOfInterestEndIdx = kAreaOfInterestEnd / kFFTResolution;
     constexpr int kAreaOfInterestSize = kAreaOfInterestEndIdx - kAreaOfInterestBeginIdx;
 
     constexpr int kMagnitudeCutoff = 4000;
+
+    constexpr size_t kEstimatedSize = 
+    sizeof(FFT_SCALAR) * kAnalogReadBufferSize +
+    sizeof(FFT_SCALAR) * kFFTBufferSize + // input buf
+    sizeof(kiss_fft_cpx) * kFFTBufferSize + // output buf
+    0;
+
 };

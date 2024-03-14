@@ -30,12 +30,24 @@ set(CMAKE_CXX_STANDARD 17)
 if (PICO_COMPILE)
     pico_sdk_init()
 endif()
+include_directories(captures/validation)
 
 
 # add subdirectories
-set(KISSFFT_DATATYPE "int16_t")
-add_subdirectory(external/kissfft-131.1.0)
+# set(KISSFFT_DATATYPE "int16_t")
+# set(KISSFFT_STATIC 1)
+
+# flags
+# -march=pentiumpro
+# -ffast-math
+# -fomit-frame-pointer
+# add_subdirectory(external/kissfft-131.1.0)
 include_directories(${PROJECT_SOURCE_DIR}/external/kissfft-131.1.0)
+set(KISSFFT_SRC 
+    ${PROJECT_SOURCE_DIR}/external/kissfft-131.1.0/kiss_fftr.c
+    ${PROJECT_SOURCE_DIR}/external/kissfft-131.1.0/kiss_fft.c
+
+)
 
 # add testing
 if (!PICO_COMPILE)

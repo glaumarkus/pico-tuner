@@ -68,3 +68,11 @@ for i in range(1, len(samples) - 1):
     
     # break
 # print(samples[1])
+
+# reference points
+# 6 -> 48,9995
+# 5 -> 97,9989
+# 4 -> 130,813
+# 3 -> 174,614
+# 2 -> 220
+# 1 -> 293,665

@@ -2,3 +2,10 @@ external/*
 build/*
 .vscode/*
 .cache/*
+captures/validation/1/*.png
+captures/validation/2/*.png
+captures/validation/3/*.png
+captures/validation/4/*.png
+captures/validation/5/*.png
+captures/validation/6/*.png
+captures/validation/headers/*

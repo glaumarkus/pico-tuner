@@ -2,7 +2,7 @@
 enable_testing()
 
 # Define test executable
-add_executable(fft_test fft_test.cpp) 
+add_executable(fft_test fft_test.cpp ${KISSFFT_SRC}) 
 
 # Link the test executable with GoogleTest and your libraries
 target_link_libraries(fft_test gtest gtest_main tuner_lib)

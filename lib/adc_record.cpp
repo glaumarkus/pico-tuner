@@ -61,20 +61,6 @@ void core_1_loop()
             float frequency = Instance::GetProcessor()->GetFrequency();
             multicore_fifo_push_blocking(kFFTDone);
             multicore_fifo_push_blocking(frequency);
-
-
-            // dummy values
-            // frequency = 445.0;
-            // multicore_fifo_push_blocking(kFFTDone);
-            // multicore_fifo_push_blocking(frequency);
-
-            // frequency = 435.0;
-            // multicore_fifo_push_blocking(kFFTDone);
-            // multicore_fifo_push_blocking(frequency);
-
-            // frequency = 440.0;
-            // multicore_fifo_push_blocking(kFFTDone);
-            // multicore_fifo_push_blocking(frequency);
         }
         tight_loop_contents();
     }
@@ -148,94 +134,6 @@ void core_0_loop()
                 Clear();
                 AddTunerOutline();
             }
-
-            // trigger from other
-            // uart_puts(UART_ID, "Trigger\n");
-
-            // // perform fft
-            // float frequency = Instance::GetProcessor()->GetFrequency();
-
-            // // get note
-            // NoteIdx note_idx = CurrentNote(frequency);
-
-            // // get limits
-            // NoteLimit note_limit = GetNoteLimits(note_idx);
-
-            // // set tuner locator
-            // AddTunerLocator(note_limit.scalar);
-
-            // // set note
-            // AddLabel(note_idx.note);
         }
     }
 }
-
-// void single_core_loop()
-// {
-//     // start stdio
-//     stdio_init_all();
-
-// #ifdef ENABLE_LOGGING
-//     setup_uart();
-//     uart_puts(UART_ID, "Timer Callback\n");
-// #endif
-
-//     // set up fft processor
-//     if (!Instance::GetProcessor()->Init())
-//     {
-// #ifdef ENABLE_LOGGING
-//         uart_puts(UART_ID, "Error setting up fft processor\n");
-// #endif
-//     }
-
-//     // // setup adc
-//     // setup_adc();
-
-//     // // setup display
-//     // setup_display();
-
-//     // // prerender outline
-//     // AddTunerOutline();
-
-// #ifdef ENABLE_LOGGING
-//     uart_puts(UART_ID, "Starting Timer\n");
-// #endif
-
-//     struct repeating_timer timer;
-//     // Setup a repeating timer that calls the callback at the specified SAMPLE_RATE
-//     int64_t delay_us = 1000000 / 44000;
-//     add_repeating_timer_us(-delay_us, repeating_timer_callback, NULL, &timer);
-
-//     // // add timer
-//     // struct repeating_timer timer;
-//     // add_repeating_timer_us(-FFTParams::kRecordTaskus, read_adc_callback, NULL, &timer);
-
-//     while (true)
-//     {
-//         tight_loop_contents();
-
-//         // sleep_ms(FFTParams::kScreenUpdateEveryUs);
-
-//         // // perform fft
-//         // float frequency = Instance::GetProcessor()->GetFrequency();
-
-//         // // get note
-//         // NoteIdx note_idx = CurrentNote(frequency);
-
-//         // // get limits
-//         // NoteLimit note_limit = GetNoteLimits(note_idx);
-
-//         // // set tuner locator
-//         // AddTunerLocator(note_limit.scalar);
-
-//         // // set note
-//         // AddLabel(note_idx.note);
-
-//         // // render
-//         // Render();
-
-//         // // reset display
-//         // Clear();
-//         // AddTunerOutline();
-//     }
-// }

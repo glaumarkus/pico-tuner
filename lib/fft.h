@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <kiss_fft.h>
+
 #ifdef PICO
 #include "hardware/sync.h"
 #endif
@@ -26,16 +26,17 @@ public:
     float GetFrequency();
 
     void Perform();
-    constexpr float GetHzFromIdx(int idx) const { return (idx + FFTParams::kAreaOfInterestBeginIdx) * FFTParams::kFFTResolution; }
+    float GetHzFromIdx(int idx) const;
     int FindMaxIdx() const;
     int GetCpxInSize() const;
 
-    // private:
-    kiss_fft_cfg cfg_;
+private:
     int add_pos_buffer_{0};
     int cpx_in_pos_{0};
-    kiss_fft_cpx cpx_buffer_[FFTParams::kAnalogReadBufferSize];
-    kiss_fft_cpx cpx_in_[FFTParams::kFFTBufferSize];
+    // exchange
+    kiss_fftr_cfg cfgr_;
+    kiss_fft_scalar sc_buffer_[FFTParams::kAnalogReadBufferSize];
+    kiss_fft_scalar sc_in_[FFTParams::kFFTBufferSize];
     kiss_fft_cpx cpx_out_[FFTParams::kFFTBufferSize];
     float freq_magnitude_[FFTParams::kAreaOfInterestSize];
 // lock for cpx_in shared interaction
